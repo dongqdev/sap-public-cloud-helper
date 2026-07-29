@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <title>SAP Public Cloud Helper</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="logo-area">
+      <img src="../icons/icon48.png" alt="SAP Logo" class="app-logo">
+      <div class="header-text">
+        <h1 class="app-title">SAP Cloud Helper</h1>
+        <span class="app-subtitle">S/4HANA Cloud Assistant</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="btnDeleteCookies" class="icon-btn" title="SAP 관련 쿠키 삭제">🍪</button>
+      <button id="btnOptions" class="icon-btn" title="설정 & 백업">⚙️</button>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="nav-tabs">
+    <button class="nav-tab active" data-tab="tabTenants">🏢 테넌트 이동</button>
+    <button class="nav-tab" data-tab="tabAutomation">⚡ Fiori 자동화</button>
+    <button class="nav-tab" data-tab="tabAppShortcuts"> 앱 바로가기</button>
+  </nav>
+
+  <!-- Main Content Area -->
+  <main class="content-container">
+
+    <!-- Tab 1: 테넌트 목록 & 6자리 빠른 등록 -->
+    <section id="tabTenants" class="tab-content active">
+      <!-- 6자리 빠른 추가 카드 -->
+      <div class="card add-tenant-card">
+        <div class="card-header">
+          <span class="card-title">➕ 신규 테넌트 등록</span>
+          <span class="badge sync-badge" title="chrome.storage.sync에 영구 보존됩니다">🔒 Sync 영구보관</span>
+        </div>
+        <div class="form-row">
+          <div class="input-group flex-1">
+            <label for="tenantNum">테넌트 ID / 번호</label>
+            <input type="text" id="tenantNum" placeholder="예: my400000 또는 400000" maxlength="50">
+          </div>
+          <div class="input-group flex-1">
+            <label for="tenantAlias">별칭 / 시스템명</label>
+            <input type="text" id="tenantAlias" placeholder="예: COMPANY">
+          </div>
+        </div>
+        <div class="form-row mt-8">
+          <div class="input-group flex-1">
+            <label for="tenantEnv">환경 구분</label>
+            <select id="tenantEnv">
+              <option value="DEV">DEV (개발)</option>
+              <option value="CUST">CUST (커스터마이징)</option>
+              <option value="TEST">TEST (검증/QAS)</option>
+              <option value="PROD">PROD (운영)</option>
+            </select>
+          </div>
+          <button id="btnAddTenant" class="btn btn-primary btn-add">등록하기</button>
+        </div>
+      </div>
+
+      <!-- 테넌트 목록 -->
+      <div class="tenant-list-header">
+        <span class="list-title">등록된 SAP 테넌트 목록 (오름차순)</span>
+        <span id="tenantCount" class="count-badge">0개</span>
+      </div>
+      <div id="tenantList" class="tenant-list">
+        <!-- JS로 동적 생성됨 -->
+      </div>
+    </section>
+
+    <!-- Tab 2: Fiori 자동화 매크로 (fiori-automation-tool 이관) -->
+    <section id="tabAutomation" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Fiori IAM / Catalog / Role 매크로</span>
+        </div>
+        <p class="card-desc">현재 활성화된 S/4HANA Cloud Fiori 탭에서 IAM App 생성, Catalog 연동, Role 활성화를 자동 수행합니다.</p>
+
+        <div class="form-group">
+          <label>자동화 모드 선택</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="autoMode" value="ROLE_ONLY" checked>
+              비즈니스 역할 유지보수
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="autoMode" value="CATALOG_EXT">
+              사용자 정의 카탈로그 확장
+            </label>
+          </div>
+        </div>
+
+        <!-- 사용자 정의 카탈로그 확장 설정 (CATALOG_EXT 모드일 때만 사용) -->
+        <div id="sectionCatalogExtOnly" class="auto-section hidden">
+          <div class="section-title">배포 애플리케이션 명칭 (app.name)</div>
+          <div class="form-row">
+            <div class="input-group flex-1">
+              <label for="autoDeployAppName">ui5-deploy.yaml의 app.name</label>
+              <input type="text" id="autoDeployAppName" placeholder="예: ZUMRCO0030 또는 YY1_ZUMRCO0030">
+            </div>
+          </div>
+          <div class="form-row mt-8">
+            <div class="input-group flex-1">
+              <label for="autoCatalogRolesExt">추가할 비즈니스 카탈로그 역할 ID (쉼표 구분)</label>
+              <input type="text" id="autoCatalogRolesExt" value="SAP_CORE_BC_EXT_CBO,SAP_CORE_BC_EXT_UI">
+              <div class="input-helper-text" style="font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">
+                * 복수 등록 시 쉼표(,)로 구분해 주세요. 입력한 이름은 자동 대문자 및 IAM App ID 규격(YY1_&lt;이름&gt;_UI5R)으로 변환되어 이동 및 최종 게시(Publish)됩니다.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- IAM App 설정 (CATALOG_EXT 모드일 때 사용) -->
+        <div id="sectionIAM" class="auto-section hidden">
+          <div class="section-title">IAM App 정보</div>
+          <div class="form-row">
+            <div class="input-group flex-1">
+              <label for="autoIamId">IAM App ID</label>
+              <input type="text" id="autoIamId" placeholder="예: ZIAM_MYAPP_001">
+            </div>
+            <div class="input-group flex-1">
+              <label for="autoIamDesc">내역 (Description)</label>
+              <input type="text" id="autoIamDesc" placeholder="예: My Custom App IAM">
+            </div>
+          </div>
+          <div class="form-row mt-6">
+            <div class="input-group flex-1">
+              <label for="autoIamService">OData/서비스 URL</label>
+              <input type="text" id="autoIamService" placeholder="예: /sap/opu/odata/sap/ZODATA_SRV">
+            </div>
+          </div>
+        </div>
+
+        <!-- Catalog 설정 (CATALOG_EXT 모드일 때 사용) -->
+        <div id="sectionCatalog" class="auto-section hidden">
+          <div class="section-title">Custom Business Catalog 정보</div>
+          <div class="form-row">
+            <div class="input-group flex-1">
+              <label for="autoCatalogIdExt">Catalog ID</label>
+              <input type="text" id="autoCatalogIdExt" placeholder="예: ZBC_MYAPP_001">
+            </div>
+            <div class="input-group flex-1">
+              <label for="autoCatalogDesc">내역 (Description)</label>
+              <input type="text" id="autoCatalogDesc" placeholder="예: Business Catalog for My App">
+            </div>
+          </div>
+        </div>
+
+        <!-- Business Role 설정 (공통) -->
+        <div id="sectionRole" class="auto-section">
+          <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+            <span>Business Role 정보</span>
+            <button id="btnAutoTestFill" class="btn btn-outline btn-sm"
+              style="font-size: 11px; padding: 2px 6px; cursor: pointer;">🧪 테스트 값 입력</button>
+          </div>
+          <div class="form-row">
+            <div class="input-group flex-1">
+              <label for="autoRoleId">Business Role ID</label>
+              <input type="text" id="autoRoleId" placeholder="예: BR_MYROLE_001">
+            </div>
+            <div class="input-group flex-1">
+              <label for="autoRoleDesc">내역 (Description)</label>
+              <input type="text" id="autoRoleDesc" placeholder="예: Custom Business Role">
+            </div>
+          </div>
+          <div class="form-row mt-8">
+            <div class="input-group flex-1">
+              <label for="autoCatalogId">연동할 비즈니스 카탈로그 ID (선택)</label>
+              <input type="text" id="autoCatalogId" placeholder="예: SAP_CORE_BC_EXT_">
+            </div>
+          </div>
+          <div class="form-row mt-8">
+            <label class="radio-label" style="font-weight: 600; color: var(--text-main);">
+              <input type="checkbox" id="autoRoleWriteUnrestricted" checked>
+              쓰기 권한 무제한 설정 (Access Category Unrestricted)
+            </label>
+          </div>
+        </div>
+
+        <div class="auto-actions">
+          <button id="btnStartAutomation" class="btn btn-accent btn-full">
+            현재 Fiori 탭에서 자동화 시작
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: 앱 바로가기 -->
+    <section id="tabAppShortcuts" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📌 대상 테넌트 선택</span>
+        </div>
+        <div class="form-group">
+          <select id="selectTargetTenant" class="flex-1"
+            style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
+            <option value="CURRENT">현재 활성화된 Fiori 탭 (주소 변경)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card mt-12">
+        <div class="card-header">
+          <span class="card-title"> Fiori 앱 바로가기 목록</span>
+          <button id="btnManageShortcuts" class="btn btn-outline btn-sm">⚙️ 관리</button>
+        </div>
+        <div id="appShortcutList" class="shortcut-grid">
+          <!-- JS 동적 생성 -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Status Bar / Footer -->
+  <footer class="app-footer">
+    <span id="statusMessage">SAP Public Cloud Helper v1.0.0</span>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+
+</html>

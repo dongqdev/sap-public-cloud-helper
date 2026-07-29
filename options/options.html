@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <title>SAP Public Cloud Helper - 설정 및 데이터 백업</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+
+<body>
+  <div class="options-container">
+    <header class="options-header">
+      <img src="../icons/icon48.png" alt="SAP Logo" class="logo">
+      <div>
+        <h1>SAP Public Cloud Helper 설정</h1>
+        <p>테넌트 목록 백업(Export/Import) 및 영구 보환 데이터 관리</p>
+      </div>
+    </header>
+
+    <!-- Data Backup & Restore Section -->
+    <section class="card">
+      <h2>💾 데이터 백업 및 복원 (Export / Import)</h2>
+      <p class="desc">
+        등록하신 테넌트 정보는 <strong>chrome.storage.sync</strong>에 보관되므로 <u>브라우저 쿠키 및 방문기록 초기화 시에도 안 날아가고 영구 유지</u>됩니다.<br>
+        추가로 다른 PC에서 동일한 테넌트 설정을 사용하거나 파일로 보관하고 싶을 때 아래의 백업/복원 기능을 활용하세요.
+      </p>
+
+      <div class="btn-group">
+        <button id="btnExportJson" class="btn btn-primary">
+          📥 테넌트 설정 파일 다운로드 (Export JSON)
+        </button>
+        <label for="importFileInput" class="btn btn-secondary">
+          📤 설정 파일 불러오기 (Import JSON)
+        </label>
+        <input type="file" id="importFileInput" accept=".json" style="display: none;">
+      </div>
+    </section>
+
+    <!-- Registered Tenants Table -->
+    <section class="card">
+      <div class="table-header">
+        <h2>🏢 등록된 SAP 테넌트 목록</h2>
+        <button id="btnClearAll" class="btn btn-danger btn-sm">전체 삭제</button>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>환경</th>
+            <th>별칭 (Alias)</th>
+            <th>테넌트 ID</th>
+            <th>주소 (URL)</th>
+            <th>-api 주소</th>
+            <th>작업</th>
+          </tr>
+        </thead>
+        <tbody id="tenantTableBody">
+          <!-- JS로 동적 생성 -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Fiori App Shortcuts Section -->
+    <section class="card">
+      <div class="table-header">
+        <h2> Fiori 앱 바로가기 해시 관리</h2>
+        <button id="btnResetAppShortcuts" class="btn btn-secondary btn-sm">기본 앱 목록 복원</button>
+      </div>
+      <p class="desc">S/4HANA Cloud Fiori 앱 주소(<code>/ui#해시</code>) 바로가기를 등록하고 관리합니다.</p>
+
+      <div class="form-row mb-16" style="display: flex; gap: 8px; margin-bottom: 16px;">
+        <input type="text" id="appNameInput" placeholder="앱 이름 (예: 비즈니스 역할 유지보수)"
+          style="flex: 1; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+        <input type="text" id="appHashInput" placeholder="해시 주소 (예: #BusinessUserRole-maintainNew)"
+          style="flex: 1.5; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+        <button id="btnAddAppShortcut" class="btn btn-primary">추가하기</button>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>앱 명칭</th>
+            <th># 라우팅 해시 주소</th>
+            <th>작업</th>
+          </tr>
+        </thead>
+        <tbody id="appShortcutTableBody">
+          <!-- JS 동적 생성 -->
+        </tbody>
+      </table>
+    </section>
+
+    <footer class="options-footer">
+      <span>SAP Public Cloud Helper v1.0.0</span>
+    </footer>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+
+</html>

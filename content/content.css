@@ -1,0 +1,86 @@
+/* content/content.css - SAP Public Cloud Helper Injected Styles */
+
+/* Toast Notification */
+#sap-helper-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999999;
+  background: #1e293b;
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+#sap-helper-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Automation Widget Overlay */
+#sap-auto-overlay {
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  z-index: 9999999;
+  width: 360px;
+}
+
+.auto-card {
+  background: #ffffff;
+  border: 1px solid #0a6ed1;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  font-family: -apple-system, sans-serif;
+}
+
+.auto-card-header {
+  background: #0a6ed1;
+  color: #ffffff;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.auto-card-title {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.auto-close-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.auto-log-area {
+  padding: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #f8fafc;
+  font-family: monospace;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.log-entry {
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.log-info { color: #334155; }
+.log-success { color: #166534; background: #dcfce7; font-weight: 700; }
+.log-error { color: #991b1b; background: #fee2e2; font-weight: 700; }

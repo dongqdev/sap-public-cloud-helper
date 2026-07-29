@@ -1,0 +1,50 @@
+{
+  "manifest_version": 3,
+  "name": "SAP Public Cloud Helper",
+  "version": "1.0.0",
+  "description": "SAP S/4HANA Cloud (Public Edition) 개발자 & 사용자를 위한 테넌트 영구 관리 및 Fiori 자동화 헬퍼 확장 프로그램",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "SAP Public Cloud Helper"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs",
+    "clipboardWrite",
+    "contextMenus",
+    "cookies"
+  ],
+  "host_permissions": [
+    "https://*.s4hana.cloud.sap/*",
+    "https://*.oncnd.sap/*",
+    "https://*.sap.com/*",
+    "https://*.ondemand.com/*"
+  ],
+  "background": {
+    "service_worker": "background/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.s4hana.cloud.sap/*",
+        "https://*.oncnd.sap/*"
+      ],
+      "css": ["content/content.css"],
+      "js": ["content/content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "options_page": "options/options.html"
+}
