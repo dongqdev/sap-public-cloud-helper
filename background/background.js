@@ -5,10 +5,17 @@ chrome.runtime.onInstalled.addListener(() => {
   
   if (chrome.contextMenus) {
     // Context Menu 생성 (마우스 우클릭 메뉴)
+
     chrome.contextMenus.create({
-      id: 'sap-open-api-url',
-      title: 'SAP -api 엔드포인트 URL로 이동',
+      id: 'sap-fiori-home-jump',
+      title: 'SAP Fiori 홈 화면으로 이동 (초기화)',
       contexts: ['page', 'selection']
+    });
+
+    chrome.contextMenus.create({
+      id: 'sap-fiori-app-search',
+      title: '선택한 텍스트로 Fiori 앱 검색',
+      contexts: ['selection']
     });
 
     chrome.contextMenus.create({
@@ -22,13 +29,71 @@ chrome.runtime.onInstalled.addListener(() => {
 // 컨텍스트 메뉴 클릭 핸들러
 if (chrome.contextMenus && chrome.contextMenus.onClicked) {
   chrome.contextMenus.onClicked.addListener((info, tab) => {
-    if (info.menuItemId === 'sap-open-api-url') {
-      if (tab && tab.url) {
-        let targetUrl = tab.url;
-        if (!targetUrl.includes('-api.s4hana.cloud.sap')) {
-          targetUrl = targetUrl.replace('.s4hana.cloud.sap', '-api.s4hana.cloud.sap');
+    if (info.menuItemId === 'sap-fiori-home-jump') {
+      if (tab && tab.url && (tab.url.includes('s4hana.cloud.sap') || tab.url.includes('oncnd.sap'))) {
+        let baseUrl = tab.url;
+        if (baseUrl.includes('/ui#')) {
+          baseUrl = baseUrl.split('/ui#')[0];
+        } else if (baseUrl.includes('/ui')) {
+          baseUrl = baseUrl.split('/ui')[0];
         }
-        chrome.tabs.create({ url: targetUrl });
+        const finalUrl = `${baseUrl}/ui#Shell-home`;
+        chrome.tabs.update(tab.id, { url: finalUrl });
+      }
+    } else if (info.menuItemId === 'sap-fiori-app-search') {
+      const selectedText = (info.selectionText || '').trim();
+      if (!selectedText) return;
+
+      const filterObj = {
+        dataSource: {
+          type: "Category",
+          id: "All",
+          label: "모두",
+          labelPlural: "모두"
+        },
+        searchTerm: selectedText,
+        rootCondition: {
+          type: "Complex",
+          operator: "And",
+          conditions: []
+        }
+      };
+      const targetHash = `#Action-search&/top=10&filter=${encodeURIComponent(JSON.stringify(filterObj))}`;
+
+      // 현재 탭이 Fiori 페이지인지 검증
+      if (tab && tab.url && (tab.url.includes('s4hana.cloud.sap') || tab.url.includes('oncnd.sap'))) {
+        let baseUrl = tab.url;
+        if (baseUrl.includes('/ui#')) {
+          baseUrl = baseUrl.split('/ui#')[0];
+        } else if (baseUrl.includes('/ui')) {
+          baseUrl = baseUrl.split('/ui')[0];
+        }
+        const finalUrl = `${baseUrl}/ui${targetHash}`;
+        chrome.tabs.update(tab.id, { url: finalUrl });
+      } else {
+        // Fiori가 아니면 저장된 첫 번째 테넌트 정보로 새 탭 열기
+        chrome.storage.sync.get(['sap_tenants'], (result) => {
+          const list = result.sap_tenants || [];
+          if (list.length > 0) {
+            const envOrder = { 'DEV': 1, 'CUST': 2, 'TEST': 3, 'PROD': 4 };
+            list.sort((a, b) => {
+              // 1차: 별칭(회사명) 알파벳순 정렬
+              const compAlias = (a.alias || '').localeCompare(b.alias || '', undefined, { sensitivity: 'base', numeric: true });
+              if (compAlias !== 0) {
+                return compAlias;
+              }
+              // 2차: 환경 가중치 순 정렬 (DEV > CUST > TEST > PROD)
+              const orderA = envOrder[a.env] || 99;
+              const orderB = envOrder[b.env] || 99;
+              return orderA - orderB;
+            });
+            const defaultTenant = list[0].num;
+            const finalUrl = `https://my${defaultTenant}.s4hana.cloud.sap/ui${targetHash}`;
+            chrome.tabs.create({ url: finalUrl });
+          } else {
+            console.warn('[SAP Helper] 등록된 테넌트가 없어 새 탭으로 Fiori 앱 검색을 수행할 수 없습니다.');
+          }
+        });
       }
     } else if (info.menuItemId === 'sap-quick-tenant-jump') {
       const selectedText = (info.selectionText || '').trim();

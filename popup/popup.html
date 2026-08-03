@@ -25,16 +25,54 @@
 
   <!-- Navigation Tabs -->
   <nav class="nav-tabs">
-    <button class="nav-tab active" data-tab="tabTenants">🏢 테넌트 이동</button>
+    <button class="nav-tab active" data-tab="tabAppShortcuts">📌 앱 바로가기</button>
+    <button class="nav-tab" data-tab="tabTenants">🏢 테넌트 이동</button>
     <button class="nav-tab" data-tab="tabAutomation">⚡ Fiori 자동화</button>
-    <button class="nav-tab" data-tab="tabAppShortcuts"> 앱 바로가기</button>
   </nav>
 
   <!-- Main Content Area -->
   <main class="content-container">
 
-    <!-- Tab 1: 테넌트 목록 & 6자리 빠른 등록 -->
-    <section id="tabTenants" class="tab-content active">
+    <!-- Tab 1: 앱 바로가기 -->
+    <section id="tabAppShortcuts" class="tab-content active">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📌 대상 테넌트 선택</span>
+        </div>
+        <div class="form-group">
+          <select id="selectTargetTenant" class="flex-1"
+            style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
+            <option value="CURRENT">현재 활성화된 Fiori 탭 (주소 변경)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Fiori 앱 검색 추가 -->
+      <div class="card mt-12">
+        <div class="card-header">
+          <span class="card-title">🔍 Fiori 앱 검색</span>
+        </div>
+        <div class="form-row">
+          <div class="input-group flex-1">
+            <input type="text" id="appSearchQuery" placeholder="검색할 앱 명칭 입력 (예: 손익센터 관리)">
+          </div>
+          <button id="btnSearchApp" class="btn btn-primary" style="white-space: nowrap; height: 32px;">검색</button>
+        </div>
+      </div>
+
+      <div class="card mt-12">
+        <div class="card-header">
+          <span class="card-title"> Fiori 앱 바로가기 목록</span>
+          <button id="btnManageShortcuts" class="btn btn-outline btn-sm">⚙️ 관리</button>
+        </div>
+        <div id="appShortcutList" class="shortcut-grid">
+          <!-- JS 동적 생성 -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 2: 테넌트 목록 & 6자리 빠른 등록 -->
+    <section id="tabTenants" class="tab-content">
       <!-- 6자리 빠른 추가 카드 -->
       <div class="card add-tenant-card">
         <div class="card-header">
@@ -75,7 +113,7 @@
       </div>
     </section>
 
-    <!-- Tab 2: Fiori 자동화 매크로 (fiori-automation-tool 이관) -->
+    <!-- Tab 3: Fiori 자동화 매크로 (fiori-automation-tool 이관) -->
     <section id="tabAutomation" class="tab-content">
       <div class="card">
         <div class="card-header">
@@ -188,31 +226,6 @@
           <button id="btnStartAutomation" class="btn btn-accent btn-full">
             현재 Fiori 탭에서 자동화 시작
           </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Tab 3: 앱 바로가기 -->
-    <section id="tabAppShortcuts" class="tab-content">
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">📌 대상 테넌트 선택</span>
-        </div>
-        <div class="form-group">
-          <select id="selectTargetTenant" class="flex-1"
-            style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
-            <option value="CURRENT">현재 활성화된 Fiori 탭 (주소 변경)</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="card mt-12">
-        <div class="card-header">
-          <span class="card-title"> Fiori 앱 바로가기 목록</span>
-          <button id="btnManageShortcuts" class="btn btn-outline btn-sm">⚙️ 관리</button>
-        </div>
-        <div id="appShortcutList" class="shortcut-grid">
-          <!-- JS 동적 생성 -->
         </div>
       </div>
     </section>

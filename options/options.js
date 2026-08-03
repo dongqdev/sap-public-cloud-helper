@@ -8,7 +8,11 @@ const DEFAULT_APP_SHORTCUTS = [
   { name: "뷰 브라우저", hash: "#CDSView-browse" },
   { name: "인력 관리", hash: "#WorkforcePerson-manage_v2" },
   { name: "소프트웨어 컬렉션 엑스포트", hash: "#SoftwareCollection-export" },
-  { name: "컬렉션 임포트", hash: "#SoftwareCollection-import" }
+  { name: "컬렉션 임포트", hash: "#SoftwareCollection-import" },
+  { name: "통신규약", hash: "#CommunicationArrangement-maintain" },
+  { name: "통신 시스템", hash: "#CommunicationSystem-maintain" },
+  { name: "통신 사용자 유지보수", hash: "#CommunicationUser-maintain" },
+
 ];
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -29,7 +33,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     return new Promise((resolve) => {
       chrome.storage.sync.get(['sap_tenants'], (res) => {
         const list = res.sap_tenants || [];
-        list.sort((a, b) => (a.alias || '').localeCompare(b.alias || '', undefined, { sensitivity: 'base', numeric: true }));
+        const envOrder = { 'DEV': 1, 'CUST': 2, 'TEST': 3, 'PROD': 4 };
+        list.sort((a, b) => {
+          // 1차: 별칭(회사명) 알파벳순 정렬
+          const compAlias = (a.alias || '').localeCompare(b.alias || '', undefined, { sensitivity: 'base', numeric: true });
+          if (compAlias !== 0) {
+            return compAlias;
+          }
+          // 2차: 환경 가중치 순 정렬 (DEV > CUST > TEST > PROD)
+          const orderA = envOrder[a.env] || 99;
+          const orderB = envOrder[b.env] || 99;
+          return orderA - orderB;
+        });
         resolve(list);
       });
     });
@@ -196,10 +211,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     reader.onload = async (evt) => {
       try {
         const importedData = JSON.parse(evt.target.result);
-        
+
         let importedTenants = [];
         let importedShortcuts = [];
-        
+
         if (Array.isArray(importedData)) {
           importedTenants = importedData;
         } else {

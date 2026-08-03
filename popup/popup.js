@@ -76,7 +76,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     return new Promise((resolve) => {
       chrome.storage.sync.get(['sap_tenants'], (result) => {
         const list = result.sap_tenants || [];
-        list.sort((a, b) => (a.alias || '').localeCompare(b.alias || '', undefined, { sensitivity: 'base', numeric: true }));
+        const envOrder = { 'DEV': 1, 'CUST': 2, 'TEST': 3, 'PROD': 4 };
+        list.sort((a, b) => {
+          // 1차: 별칭(회사명) 알파벳순 정렬
+          const compAlias = (a.alias || '').localeCompare(b.alias || '', undefined, { sensitivity: 'base', numeric: true });
+          if (compAlias !== 0) {
+            return compAlias;
+          }
+          // 2차: 환경 가중치 순 정렬 (DEV > CUST > TEST > PROD)
+          const orderA = envOrder[a.env] || 99;
+          const orderB = envOrder[b.env] || 99;
+          return orderA - orderB;
+        });
         resolve(list);
       });
     });
@@ -281,7 +292,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
 
-      // Send automation command to Content Script (Auto inject & direct execute)
+      // Send automation command to Content Script (CSP-safe messaging bridge)
       function sendCommandToTab(tabId) {
         chrome.tabs.sendMessage(tabId, config, (response) => {
           if (chrome.runtime.lastError || !response) {
@@ -295,22 +306,17 @@ document.addEventListener('DOMContentLoaded', async () => {
               target: { tabId: tabId },
               files: ['content/content.js']
             }, () => {
-              // 주입 직후 window.startSapFioriAutomation 직접 호출로 100% 즉시 기동!
-              chrome.scripting.executeScript({
-                target: { tabId: tabId },
-                func: (cfg) => {
-                  if (typeof window.startSapFioriAutomation === 'function') {
-                    window.startSapFioriAutomation(cfg);
+              // content.js가 로드되어 리스너가 등록될 때까지 잠시 대기 후 메시지 전송
+              setTimeout(() => {
+                chrome.tabs.sendMessage(tabId, config, (res) => {
+                  if (chrome.runtime.lastError) {
+                    console.error('[SAP Helper] Message retry error:', chrome.runtime.lastError);
+                  } else {
+                    showStatus(' Fiori 자동화가 시작되었습니다!');
+                    setTimeout(() => window.close(), 400);
                   }
-                },
-                args: [config]
-              }).then(() => {
-                showStatus(' Fiori 자동화가 시작되었습니다!');
-                setTimeout(() => window.close(), 400);
-              }).catch(() => {
-                showStatus(' Fiori 자동화가 시작되었습니다!');
-                setTimeout(() => window.close(), 400);
-              });
+                });
+              }, 200);
             });
           } else {
             showStatus(' Fiori 자동화가 시작되었습니다!');
@@ -390,6 +396,61 @@ document.addEventListener('DOMContentLoaded', async () => {
         chrome.runtime.openOptionsPage();
       } else {
         chrome.tabs.create({ url: chrome.runtime.getURL('options/options.html') });
+      }
+    });
+  }
+
+  // 5-2. Fiori App Search Logic
+  const appSearchQueryInput = document.getElementById('appSearchQuery');
+  const btnSearchApp = document.getElementById('btnSearchApp');
+
+  async function performAppSearch() {
+    const query = appSearchQueryInput.value.trim();
+    if (!query) {
+      alert('검색어를 입력해 주세요.');
+      appSearchQueryInput.focus();
+      return;
+    }
+
+    const targetVal = selectTargetTenant.value;
+
+    const filterObj = {
+      dataSource: {
+        type: "Category",
+        id: "All",
+        label: "모두",
+        labelPlural: "모두"
+      },
+      searchTerm: query,
+      rootCondition: {
+        type: "Complex",
+        operator: "And",
+        conditions: []
+      }
+    };
+    const targetHash = `#Action-search&/top=10&filter=${encodeURIComponent(JSON.stringify(filterObj))}`;
+
+    if (targetVal === 'CURRENT') {
+      if (activeTabObj && activeTabObj.url && (activeTabObj.url.includes('s4hana.cloud.sap') || activeTabObj.url.includes('oncnd.sap'))) {
+        const baseUrl = activeTabObj.url.split('/ui#')[0];
+        const finalUrl = `${baseUrl}/ui${targetHash}`;
+        chrome.tabs.update(activeTabObj.id, { url: finalUrl });
+        window.close();
+      } else {
+        alert('현재 탭이 S/4HANA Cloud 페이지가 아닙니다.\n아래 드롭다운에서 등록된 테넌트를 선택하여 검색을 수행하세요.');
+      }
+    } else {
+      const finalUrl = `https://my${targetVal}.s4hana.cloud.sap/ui${targetHash}`;
+      chrome.tabs.create({ url: finalUrl });
+      window.close();
+    }
+  }
+
+  if (btnSearchApp && appSearchQueryInput) {
+    btnSearchApp.addEventListener('click', performAppSearch);
+    appSearchQueryInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        performAppSearch();
       }
     });
   }
