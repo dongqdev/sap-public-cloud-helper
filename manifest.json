@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SAP Public Cloud Helper",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "SAP S/4HANA Cloud (Public Edition) 개발자 & 사용자를 위한 테넌트 영구 관리 및 Fiori 자동화 헬퍼 확장 프로그램",
   "icons": {
     "16": "icons/icon16.png",

@@ -132,13 +132,14 @@
     }
 
     // 가시성 및 활성화 상태 검사를 포함한 컨트롤 획득 대기 (폴링 100ms로 속도 최적화)
-    async waitForControl(partialId, timeout = 12000) {
+    // requireEnabled=false로 호출하면 getEnabled() 상태와 무관하게 존재 여부만으로 반환 (프로그램적 API 호출은 disabled 상태에서도 동작하기 때문)
+    async waitForControl(partialId, timeout = 12000, requireEnabled = true) {
       const startTime = Date.now();
       while (Date.now() - startTime < timeout) {
         const oCtrl = this.findControl(partialId);
         if (oCtrl) {
           const isEnabled = typeof oCtrl.getEnabled === 'function' ? oCtrl.getEnabled() : true;
-          if (isEnabled) {
+          if (!requireEnabled || isEnabled) {
             return oCtrl;
           }
         }
@@ -187,36 +188,69 @@
       throw new Error(`'${tabName}' 탭 전환에 최종 실패했습니다.`);
     }
 
+    // 현재 선택된 항목의 텍스트가 '무제한'인지 확인하는 헬퍼 함수
+    isUnrestrictedSelected(selectCtrl) {
+      const selected = typeof selectCtrl.getSelectedItem === 'function' ? selectCtrl.getSelectedItem() : null;
+      const text = (selected && typeof selected.getText === 'function' ? selected.getText() : '') || '';
+      const upperText = text.toUpperCase();
+      return text.includes('무제한') || upperText.includes('UNRESTRICTED') || upperText.includes('UNLIMITED');
+    }
+
     // 셀렉트박스 권한 항목을 지능적으로 무제한으로 매핑 및 대기하는 헬퍼 함수
-    async setSelectToUnrestricted(selectCtrl, fieldName = "액세스 권한") {
+    // 비즈니스 카탈로그 등록 직후에는 값이 설정되어도 UI5 바인딩이 되돌리는 경우가 있어, 실제 반영을 확인할 때까지 최대 5회 재시도
+    async setSelectToUnrestricted(selectCtrl, fieldName = "액세스 권한", maxAttempts = 5) {
       if (!selectCtrl) return;
-      
+
       this.log(`[Role] '${fieldName}' 항목을 무제한으로 설정을 시작합니다.`);
-      
-      // 1) Key 값으로 설정하는 경우 (Key 값을 모른다면 방법 2 사용)
-      let success = false;
-      if (typeof selectCtrl.setSelectedKey === 'function') {
-        selectCtrl.setSelectedKey("1"); 
-        const selected = selectCtrl.getSelectedItem();
-        if (selected && selected.getKey() === "1") {
-          this.log(`[Role] Key "1" 지정 방식을 적용했습니다.`);
-          selectCtrl.fireChange({ selectedItem: selected });
-          success = true;
+
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        // 셀렉트 박스가 활성화된 직후에도 items(Value Help) 목록은 비동기로 늦게 채워질 수 있어 최대 3초간 폴링 대기
+        let items = [];
+        const itemsWaitStart = Date.now();
+        while (Date.now() - itemsWaitStart < 3000) {
+          items = typeof selectCtrl.getItems === 'function' ? selectCtrl.getItems() : [];
+          if (items.length > 0) break;
+          await this.delay(150);
+        }
+
+        // 1) 항목의 실제 표시 텍스트로 '무제한' 항목을 탐색 (Key 값은 화면마다 달라질 수 있어 신뢰 불가)
+        const unrestrictedItem = items.find(item => {
+          const text = (typeof item.getText === 'function' ? item.getText() : '') || '';
+          const upperText = text.toUpperCase();
+          return text.includes('무제한') || upperText.includes('UNRESTRICTED') || upperText.includes('UNLIMITED');
+        });
+
+        if (unrestrictedItem && typeof selectCtrl.setSelectedItem === 'function') {
+          this.log(`[Role] (시도 ${attempt}/${maxAttempts}) 텍스트 매칭으로 '무제한' 항목(Key: ${typeof unrestrictedItem.getKey === 'function' ? unrestrictedItem.getKey() : '?'})을 찾았습니다.`);
+          selectCtrl.setSelectedItem(unrestrictedItem);
+          if (typeof selectCtrl.setSelectedKey === 'function' && typeof unrestrictedItem.getKey === 'function') {
+            selectCtrl.setSelectedKey(unrestrictedItem.getKey());
+          }
+          selectCtrl.fireChange({ selectedItem: unrestrictedItem });
+        } else if (items.length > 0 && typeof selectCtrl.setSelectedItem === 'function') {
+          // 2) Fallback: 텍스트 매칭 실패 시에만 첫 번째 항목으로 대체 (기존 값과 동일할 수 있어 최후의 수단)
+          this.log(`[Role] [경고] (시도 ${attempt}/${maxAttempts}) '무제한' 텍스트를 가진 항목을 찾지 못해 첫 번째 항목(Index 0)으로 대체 지정합니다.`, 'warning');
+          selectCtrl.setSelectedItem(items[0]);
+          selectCtrl.fireChange({ selectedItem: items[0] });
+        } else {
+          this.log(`[Role] [경고] (시도 ${attempt}/${maxAttempts}) '${fieldName}' 셀렉트 박스에서 선택 가능한 항목을 찾지 못했습니다.`, 'warning');
+        }
+
+        await this.waitForUi5();
+        await this.delay(200);
+
+        if (this.isUnrestrictedSelected(selectCtrl)) {
+          this.log(`[Role] '${fieldName}' 항목이 '무제한'으로 반영된 것을 확인했습니다. (시도 ${attempt}/${maxAttempts})`, 'success');
+          return;
+        }
+
+        if (attempt < maxAttempts) {
+          this.log(`[Role] [경고] '${fieldName}' 값이 아직 '무제한'으로 반영되지 않았습니다. 재시도합니다...`, 'warning');
+          await this.delay(400);
         }
       }
 
-      // 2) Index로 첫 번째 항목('무제한') 선택하는 경우 (1번이 매치 실패했을 때만 실행)
-      if (!success && typeof selectCtrl.getItems === 'function' && selectCtrl.getItems().length > 0) {
-        const oFirstItem = selectCtrl.getItems()[0];
-        if (oFirstItem && typeof selectCtrl.setSelectedItem === 'function') {
-          this.log(`[Role] 첫 번째 아이템(Index 0) 지정 방식을 적용했습니다.`);
-          selectCtrl.setSelectedItem(oFirstItem);
-          selectCtrl.fireChange({ selectedItem: oFirstItem });
-        }
-      }
-
-      await this.waitForUi5();
-      await this.delay(200);
+      this.log(`[Role] [경고] '${fieldName}' 항목을 '무제한'으로 설정하지 못했습니다. (최대 ${maxAttempts}회 시도 후 포기)`, 'warning');
     }
 
     async start() {
@@ -737,28 +771,13 @@
           await this.switchTab(generalTab, '일반 역할 세부사항');
         }
 
-        this.log("[Role] 쓰기 액세스 권한을 '무제한(Unrestricted)'으로 설정을 진행합니다.");
-        
-        // 셀렉트 박스 컨트롤이 완전히 렌더링될 때까지 최대 5초 대기
-        var oSelect = await this.waitForControl('select.WriteAccess', 5000);
+        // 셀렉트 박스 컨트롤이 완전히 렌더링될 때까지 최대 5초 대기 (getEnabled() 상태는 요구하지 않음 - disabled 상태에서도 프로그램적 선택 API는 정상 동작)
+        var oSelect = await this.waitForControl('select.WriteAccess', 5000, false);
         if (oSelect) {
-          // '무제한' 옵션의 Key 값(보통 "1" 또는 " unrestricted ") 설정 후 change 이벤트 발생
-          // 1) Key 값으로 설정하는 경우 (Key 값을 모른다면 방법 2 사용)
-          oSelect.setSelectedKey("1"); 
-          oSelect.fireChange({ selectedItem: oSelect.getSelectedItem() });
-
-          // 2) Index로 첫 번째 항목('무제한') 선택하는 경우
-          var oFirstItem = oSelect.getItems()[0]; // '무제한' Item
-          if (oFirstItem) {
-            oSelect.setSelectedItem(oFirstItem);
-            oSelect.fireChange({ selectedItem: oFirstItem });
-          }
+          await this.setSelectToUnrestricted(oSelect, '쓰기 액세스 권한(WriteAccess)');
         } else {
           this.log("[경고] 무제한 설정을 위한 select.WriteAccess 컨트롤을 탐색하지 못했습니다.", 'warning');
         }
-
-        await this.waitForUi5();
-        await this.delay(200);
       }
 
       this.log("[Role] 🎉 비즈니스 역할 자동 설정 단계가 완료되었습니다!", 'success');
