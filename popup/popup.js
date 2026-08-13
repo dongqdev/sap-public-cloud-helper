@@ -500,10 +500,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // Utility
+  const DEFAULT_STATUS = 'SAP Public Cloud Helper v' + chrome.runtime.getManifest().version;
+  if (statusMessage) statusMessage.textContent = DEFAULT_STATUS;
+
   function showStatus(msg) {
     statusMessage.textContent = msg;
     setTimeout(() => {
-      statusMessage.textContent = 'SAP Public Cloud Helper v1.0.0';
+      statusMessage.textContent = DEFAULT_STATUS;
     }, 4000);
   }
 

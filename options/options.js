@@ -15,6 +15,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnAddAppShortcut = document.getElementById('btnAddAppShortcut');
   const btnResetAppShortcuts = document.getElementById('btnResetAppShortcuts');
 
+  const optionsVersion = document.getElementById('optionsVersion');
+  if (optionsVersion) {
+    optionsVersion.textContent = 'SAP Public Cloud Helper v' + chrome.runtime.getManifest().version;
+  }
+
   // --- 1. Tenants Logic ---
   async function getTenants() {
     return new Promise((resolve) => {
