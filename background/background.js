@@ -5,23 +5,27 @@ chrome.runtime.onInstalled.addListener(() => {
   
   if (chrome.contextMenus) {
     // Context Menu 생성 (마우스 우클릭 메뉴)
+    // onInstalled는 확장 재로드/업데이트 시에도 다시 실행되므로,
+    // 이전에 등록된 메뉴가 남아있는 상태로 create()를 호출하면
+    // "duplicate id" 에러가 발생한다. 항상 먼저 비우고 새로 만든다.
+    chrome.contextMenus.removeAll(() => {
+      chrome.contextMenus.create({
+        id: 'sap-fiori-home-jump',
+        title: 'SAP Fiori 홈 화면으로 이동 (초기화)',
+        contexts: ['page', 'selection']
+      });
 
-    chrome.contextMenus.create({
-      id: 'sap-fiori-home-jump',
-      title: 'SAP Fiori 홈 화면으로 이동 (초기화)',
-      contexts: ['page', 'selection']
-    });
+      chrome.contextMenus.create({
+        id: 'sap-fiori-app-search',
+        title: '선택한 텍스트로 Fiori 앱 검색',
+        contexts: ['selection']
+      });
 
-    chrome.contextMenus.create({
-      id: 'sap-fiori-app-search',
-      title: '선택한 텍스트로 Fiori 앱 검색',
-      contexts: ['selection']
-    });
-
-    chrome.contextMenus.create({
-      id: 'sap-quick-tenant-jump',
-      title: '선택한 6자리 숫자로 테넌트 이동',
-      contexts: ['selection']
+      chrome.contextMenus.create({
+        id: 'sap-quick-tenant-jump',
+        title: '선택한 6자리 숫자로 테넌트 이동',
+        contexts: ['selection']
+      });
     });
   }
 });
