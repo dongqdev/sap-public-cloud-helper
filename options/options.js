@@ -67,8 +67,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td><span class="env-tag ${t.env || 'DEV'}">${t.env || 'DEV'}</span></td>
         <td><strong>${escapeHtml(t.alias || '')}</strong></td>
         <td><code>my${t.num}</code></td>
-        <td><a href="${homeUrl}" target="_blank" style="color:#0a6ed1;">my${t.num}.s4hana.cloud.sap</a></td>
-        <td><a href="${apiUrl}" target="_blank" style="color:#0d9488;">my${t.num}-api.s4hana.cloud.sap</a></td>
+        <td><a href="${homeUrl}" target="_blank" class="table-link">my${t.num}.s4hana.cloud.sap</a></td>
+        <td><a href="${apiUrl}" target="_blank" class="table-link table-link-secondary">my${t.num}-api.s4hana.cloud.sap</a></td>
         <td>
           <button class="btn btn-danger btn-sm btn-del" data-index="${index}">삭제</button>
         </td>

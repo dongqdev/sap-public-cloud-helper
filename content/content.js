@@ -31,8 +31,8 @@
     overlay.innerHTML = `
       <div class="auto-card">
         <div class="auto-card-header">
-          <span class="auto-card-title">🤖 SAP Fiori Automation Widget</span>
-          <button id="btnCloseAutoWidget" class="auto-close-btn">✕</button>
+          <span class="auto-card-title">SAP Fiori Automation Widget</span>
+          <button id="btnCloseAutoWidget" class="auto-close-btn" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         </div>
         <div id="autoLogArea" class="auto-log-area"></div>
       </div>
@@ -90,8 +90,8 @@
   // 자동화 기동 함수
   function startAutomation(config) {
     createProgressOverlay();
-    log('🤖 Fiori UI5 자동화 매크로가 시작되었습니다!');
-    log(`📌 선택 모드: ${config.mode === 'CATALOG_EXT' ? '사용자 정의 카탈로그 확장' : '비즈니스 역할 유지보수'}`);
+    log('Fiori UI5 자동화 매크로가 시작되었습니다!');
+    log(`선택 모드: ${config.mode === 'CATALOG_EXT' ? '사용자 정의 카탈로그 확장' : '비즈니스 역할 유지보수'}`);
 
     injectMainWorldAutomation(config);
   }

@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const parsedTenantId = match[0].toLowerCase(); // my400000
         if (tenantNumInput) {
           tenantNumInput.value = parsedTenantId;
-          showStatus(`📍 현재 탭의 테넌트 ID(${parsedTenantId})가 자동 입력되었습니다.`);
+          showStatus(`현재 탭의 테넌트 ID(${parsedTenantId})가 자동 입력되었습니다.`);
         }
       }
     }
@@ -126,8 +126,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>
         <div class="tenant-item-actions">
           <button class="btn btn-primary btn-sm btn-jump" data-url="${homeUrl}" title="S/4HANA Launchpad 이동">이동</button>
-          <button class="btn btn-secondary btn-sm btn-api-copy" data-url="${apiUrl}" title="-api 주소 복사">📋 복사</button>
-          <button class="btn btn-outline btn-sm btn-del" data-index="${index}" data-alias="${escapeHtml(alias)}" data-num="${numStr}" data-env="${env}" title="삭제">🗑</button>
+          <button class="btn btn-secondary btn-sm btn-api-copy" data-url="${apiUrl}" title="-api 주소 복사"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2" /><path d="M5 15V5a2 2 0 0 1 2-2h10" /></svg>복사</button>
+          <button class="btn btn-outline btn-sm btn-del" data-index="${index}" data-alias="${escapeHtml(alias)}" data-num="${numStr}" data-env="${env}" title="삭제"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13" /></svg></button>
         </div>
       `;
       tenantListContainer.appendChild(item);
@@ -136,25 +136,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Event Delegation for tenant list buttons
     tenantListContainer.querySelectorAll('.btn-jump').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        chrome.tabs.create({ url: e.target.dataset.url });
+        chrome.tabs.create({ url: e.currentTarget.dataset.url });
       });
     });
 
     tenantListContainer.querySelectorAll('.btn-api-copy').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const apiUrl = e.target.dataset.url;
+        const apiUrl = e.currentTarget.dataset.url;
         navigator.clipboard.writeText(apiUrl).then(() => {
-          showStatus('📋 -api 주소가 클립보드에 복사되었습니다!');
+          showStatus('-api 주소가 클립보드에 복사되었습니다!');
         });
       });
     });
 
     tenantListContainer.querySelectorAll('.btn-del').forEach(btn => {
       btn.addEventListener('click', async (e) => {
-        const idx = parseInt(e.target.dataset.index, 10);
-        const alias = e.target.dataset.alias || '';
-        const num = e.target.dataset.num || '';
-        const env = e.target.dataset.env || 'DEV';
+        const idx = parseInt(e.currentTarget.dataset.index, 10);
+        const alias = e.currentTarget.dataset.alias || '';
+        const num = e.currentTarget.dataset.num || '';
+        const env = e.currentTarget.dataset.env || 'DEV';
 
         if (confirm(`[${env}] ${alias} (my${num}) 를 삭제하시겠습니까?`)) {
           const list = await getTenants();
@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (autoRoleDesc) autoRoleDesc.value = '자동화 테스트';
       if (autoCatalogId) autoCatalogId.value = 'ZBC_BP_PROD';
 
-      showStatus('🧪 테스트 데이터가 기입되었습니다.');
+      showStatus('테스트 데이터가 기입되었습니다.');
     });
   }
 
@@ -338,7 +338,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const appList = await getAppShortcuts();
 
     // Fill Tenant Select Box
-    selectTargetTenant.innerHTML = `<option value="CURRENT">📍 현재 활성화된 Fiori 탭 (주소 변경)</option>`;
+    selectTargetTenant.innerHTML = `<option value="CURRENT">현재 활성화된 Fiori 탭 (주소 변경)</option>`;
     tenants.forEach(t => {
       const opt = document.createElement('option');
       opt.value = t.num;
@@ -352,7 +352,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       const item = document.createElement('div');
       item.className = 'shortcut-tile';
       item.innerHTML = `
-        <span class="shortcut-tile-icon"></span>
         <span class="shortcut-tile-name">${escapeHtml(app.name)}</span>
         <span class="shortcut-tile-hash" title="${escapeHtml(app.hash)}">${escapeHtml(app.hash)}</span>
       `;
@@ -450,7 +449,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (btnDeleteCookies) {
     btnDeleteCookies.addEventListener('click', () => {
-      if (confirm('🍪 SAP 관련 쿠키를 삭제하시겠습니까?\n삭제 후 세션이 로그아웃되어 재로그인이 필요할 수 있습니다.')) {
+      if (confirm('SAP 관련 쿠키를 삭제하시겠습니까?\n삭제 후 세션이 로그아웃되어 재로그인이 필요할 수 있습니다.')) {
         chrome.cookies.getAll({}, (cookies) => {
           const targetCookies = cookies.filter(cookie => 
             cookie.domain.endsWith('.s4hana.cloud.sap') || 
@@ -483,7 +482,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           });
 
           Promise.all(removePromises).then(() => {
-            showStatus(`🍪 SAP 관련 쿠키 ${deletedCount}개가 삭제되었습니다. 페이지를 새로고침 해주세요.`);
+            showStatus(`SAP 관련 쿠키 ${deletedCount}개가 삭제되었습니다. 페이지를 새로고침 해주세요.`);
           });
         });
       }

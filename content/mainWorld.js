@@ -257,17 +257,17 @@
       try {
         if (this.config.mode === 'CATALOG_EXT') {
           await this.processCatalogExtension();
-          this.log('🎉 사용자 정의 카탈로그 확장 자동화 작업이 성공적으로 수행되었습니다!', 'success');
-          this.toast('🎉 사용자 정의 카탈로그 확장 설정 완료! 화면 하단 [저장] 버튼을 눌러주세요.');
+          this.log('사용자 정의 카탈로그 확장 자동화 작업이 성공적으로 수행되었습니다!', 'success');
+          this.toast('사용자 정의 카탈로그 확장 설정 완료! 화면 하단 [저장] 버튼을 눌러주세요.');
         } else {
           if (this.config.role_id) {
             await this.processBusinessRole();
           }
-          this.log('🎉 비즈니스 역할 수동 저장을 제외한 자동화 작업이 성공적으로 수행되었습니다!', 'success');
-          this.toast('🎉 비즈니스 역할 설정 완료! 화면 하단 [저장] 버튼을 눌러주세요.');
+          this.log('비즈니스 역할 수동 저장을 제외한 자동화 작업이 성공적으로 수행되었습니다!', 'success');
+          this.toast('비즈니스 역할 설정 완료! 화면 하단 [저장] 버튼을 눌러주세요.');
         }
       } catch (err) {
-        this.log(`❌ 오류 발생: ${err.message}`, 'error');
+        this.log(`오류 발생: ${err.message}`, 'error');
         console.error('[SAP Helper Automation Error]', err);
       }
     }
@@ -780,7 +780,7 @@
         }
       }
 
-      this.log("[Role] 🎉 비즈니스 역할 자동 설정 단계가 완료되었습니다!", 'success');
+      this.log("[Role] 비즈니스 역할 자동 설정 단계가 완료되었습니다!", 'success');
     }
   }
 
@@ -795,7 +795,7 @@
       if (typeof sap === 'undefined' || !sap.ui || !sap.ui.getCore) {
         console.error('[SAP Helper] SAP UI5 Core unavailable in Main World');
         window.dispatchEvent(new CustomEvent('sap-automation-event', {
-          detail: { action: 'log', msg: '❌ 오류: SAP UI5 프레임워크가 메인 윈도우에서 로드되지 않았습니다. Fiori 화면에서 시도해 주세요.', type: 'error' }
+          detail: { action: 'log', msg: '오류: SAP UI5 프레임워크가 메인 윈도우에서 로드되지 않았습니다. Fiori 화면에서 시도해 주세요.', type: 'error' }
         }));
       } else {
         const engine = new FioriUi5AutomationEngine(config);

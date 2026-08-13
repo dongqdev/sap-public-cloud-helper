@@ -4,6 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <title>SAP Public Cloud Helper - 설정 및 데이터 백업</title>
+  <script src="../shared/theme.js"></script>
+  <link rel="stylesheet" href="../shared/theme.css">
   <link rel="stylesheet" href="options.css">
 </head>
 
@@ -15,11 +17,15 @@
         <h1>SAP Public Cloud Helper 설정</h1>
         <p>테넌트 목록 백업(Export/Import) 및 영구 보환 데이터 관리</p>
       </div>
+      <button id="themeToggleBtn" class="theme-toggle" type="button"></button>
     </header>
 
     <!-- Data Backup & Restore Section -->
     <section class="card">
-      <h2>💾 데이터 백업 및 복원 (Export / Import)</h2>
+      <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3" /><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6" /></svg>
+        데이터 백업 및 복원 (Export / Import)
+      </h2>
       <p class="desc">
         등록하신 테넌트 정보는 <strong>chrome.storage.sync</strong>에 보관되므로 <u>브라우저 쿠키 및 방문기록 초기화 시에도 안 날아가고 영구 유지</u>됩니다.<br>
         추가로 다른 PC에서 동일한 테넌트 설정을 사용하거나 파일로 보관하고 싶을 때 아래의 백업/복원 기능을 활용하세요.
@@ -27,10 +33,12 @@
 
       <div class="btn-group">
         <button id="btnExportJson" class="btn btn-primary">
-          📥 테넌트 설정 파일 다운로드 (Export JSON)
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 21h16" /></svg>
+          테넌트 설정 파일 다운로드 (Export JSON)
         </button>
         <label for="importFileInput" class="btn btn-secondary">
-          📤 설정 파일 불러오기 (Import JSON)
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V9M7 14l5-5 5 5M4 3h16" /></svg>
+          설정 파일 불러오기 (Import JSON)
         </label>
         <input type="file" id="importFileInput" accept=".json" style="display: none;">
       </div>
@@ -39,7 +47,10 @@
     <!-- Registered Tenants Table -->
     <section class="card">
       <div class="table-header">
-        <h2>🏢 등록된 SAP 테넌트 목록</h2>
+        <h2>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M6 21V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v16M9 8h1M9 12h1M9 16h1M15 21v-7h4a1 1 0 0 1 1 1v6" /></svg>
+          등록된 SAP 테넌트 목록
+        </h2>
         <button id="btnClearAll" class="btn btn-danger btn-sm">전체 삭제</button>
       </div>
 
@@ -63,16 +74,19 @@
     <!-- Fiori App Shortcuts Section -->
     <section class="card">
       <div class="table-header">
-        <h2> Fiori 앱 바로가기 해시 관리</h2>
+        <h2>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v6H4zM4 14h16v6H4zM4 4v16M20 4v16" /></svg>
+          Fiori 앱 바로가기 해시 관리
+        </h2>
         <button id="btnResetAppShortcuts" class="btn btn-secondary btn-sm">기본 앱 목록 복원</button>
       </div>
       <p class="desc">S/4HANA Cloud Fiori 앱 주소(<code>/ui#해시</code>) 바로가기를 등록하고 관리합니다.</p>
 
       <div class="form-row mb-16" style="display: flex; gap: 8px; margin-bottom: 16px;">
         <input type="text" id="appNameInput" placeholder="앱 이름 (예: 비즈니스 역할 유지보수)"
-          style="flex: 1; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+          style="flex: 1; padding: 8px; border: 1px solid var(--border); border-radius: 6px;">
         <input type="text" id="appHashInput" placeholder="해시 주소 (예: #BusinessUserRole-maintainNew)"
-          style="flex: 1.5; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+          style="flex: 1.5; padding: 8px; border: 1px solid var(--border); border-radius: 6px;">
         <button id="btnAddAppShortcut" class="btn btn-primary">추가하기</button>
       </div>
 

@@ -1,0 +1,106 @@
+/* Shared color tokens for popup.html and options.html.
+   Light values live on :root. Dark values apply either from the OS
+   (prefers-color-scheme, when the user hasn't picked a mode) or from
+   an explicit [data-theme] set by shared/theme.js. */
+
+:root {
+  --bg: #f6f8fa;
+  --bg-elevated: #ffffff;
+  --bg-sunken: #f1f5f9;
+  --border: #d9e1e8;
+  --border-strong: #c2ccd6;
+  --text-main: #0f2537;
+  --text-muted: #62778f;
+
+  /* SAP logo palette: German Blue for light-mode accent (readable on white),
+     Marine/Rainbow Blue for the header band. */
+  --accent: #019ce0;
+  --accent-strong: #0854a0;
+  --accent-soft: #e6f6fd;
+  --header-grad-start: #0c7ecf;
+  --header-grad-end: #1661be;
+
+  --danger: #dc2626;
+  --danger-strong: #b91c1c;
+  --success: #1a8754;
+  --warning: #d97706;
+
+  --env-dev: #2b7d2b;
+  --env-cust: #0891b2;
+  --env-test: #d97706;
+  --env-prod: #bb0000;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1117;
+    --bg-elevated: #12181f;
+    --bg-sunken: #161b22;
+    --border: #30363d;
+    --border-strong: #3f4753;
+    --text-main: #e6edf3;
+    --text-muted: #8b949e;
+
+    /* SAP Capri for dark-mode accent: pops against the dark surface where
+       German Blue would look muddy. */
+    --accent: #00b9f2;
+    --accent-strong: #33c9f5;
+    --accent-soft: rgba(0, 185, 242, 0.14);
+
+    --danger: #f85149;
+    --danger-strong: #ff7b72;
+    --success: #3fb950;
+    --warning: #d29922;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0d1117;
+  --bg-elevated: #12181f;
+  --bg-sunken: #161b22;
+  --border: #30363d;
+  --border-strong: #3f4753;
+  --text-main: #e6edf3;
+  --text-muted: #8b949e;
+
+  --accent: #00b9f2;
+  --accent-strong: #33c9f5;
+  --accent-soft: rgba(0, 185, 242, 0.14);
+
+  --danger: #f85149;
+  --danger-strong: #ff7b72;
+  --success: #3fb950;
+  --warning: #d29922;
+}
+
+/* Theme toggle button, shared by popup and options headers. */
+.theme-toggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+
+.theme-toggle svg {
+  width: 16px;
+  height: 16px;
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 1px;
+}
