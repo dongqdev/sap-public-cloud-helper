@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>개인정보처리방침 - SAP Public Cloud Helper</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg-elevated: #12181f;
+      --border: #30363d;
+      --text-main: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #00b9f2;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      line-height: 1.7;
+    }
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 64px 24px 96px;
+    }
+
+    a {
+      color: var(--accent);
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      letter-spacing: -0.4px;
+    }
+
+    .updated {
+      color: var(--text-muted);
+      font-size: 13.5px;
+      margin-bottom: 40px;
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 40px 0 12px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    h2:first-of-type {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    p,
+    li {
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin: 8px 0;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    code {
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 5px;
+      color: var(--text-main);
+    }
+
+    .back {
+      display: inline-block;
+      margin-bottom: 32px;
+      font-size: 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    .back:hover {
+      color: var(--text-main);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <a href="index.html" class="back">← 홈으로</a>
+    <h1>개인정보처리방침</h1>
+    <p class="updated">최종 업데이트: 2026-08-13 · SAP Public Cloud Helper는 SAP SE와 관계가 없는 비공식(unofficial) 개인 개발 도구입니다.</p>
+
+    <h2>요약</h2>
+    <ul>
+      <li>이 확장 프로그램은 어떠한 서버로도 데이터를 전송하지 않습니다. 자체 백엔드가 없습니다.</li>
+      <li>등록한 테넌트 정보와 앱 바로가기는 브라우저(Chrome 계정)에만 저장됩니다.</li>
+      <li>광고, 트래킹, 분석(Analytics) 스크립트를 포함하지 않습니다.</li>
+      <li>어떠한 개인정보도 제3자에게 판매·공유하지 않습니다.</li>
+    </ul>
+
+    <h2>수집하는 정보와 저장 위치</h2>
+    <p>
+      이 확장 프로그램이 저장하는 정보는 사용자가 직접 입력한 다음 두 가지뿐입니다.
+    </p>
+    <ul>
+      <li><strong>테넌트 정보</strong>: 테넌트 번호, 별칭, 환경 구분(DEV/TEST/PROD)</li>
+      <li><strong>앱 바로가기 목록</strong>: 사용자가 등록한 Fiori 앱 경로</li>
+    </ul>
+    <p>
+      이 데이터는 Chrome의 <code>chrome.storage.sync</code> API에 저장됩니다. 즉, Chrome에 로그인되어 있고 동기화가
+      켜져 있다면 사용자 본인의 Google 계정을 통해 기기 간 동기화될 뿐, 개발자가 운영하는 서버로 전송되거나
+      개발자가 열람하는 일은 없습니다. Chrome 동기화가 꺼져 있다면 로컬 브라우저에만 저장됩니다.
+    </p>
+
+    <h2>쿠키(Cookies) 권한 사용 방식</h2>
+    <p>
+      팝업의 "쿠키 삭제" 버튼을 눌렀을 때만 동작합니다. 아래 도메인과 일치하는 쿠키만 조회·삭제 대상이 되며,
+      쿠키의 값(세션 토큰 등)을 읽거나 어디로도 전송하지 않고 즉시 삭제만 수행합니다.
+    </p>
+    <ul>
+      <li><code>*.s4hana.cloud.sap</code></li>
+      <li><code>*.oncnd.sap</code></li>
+      <li><code>*.sap.com</code></li>
+      <li><code>*.ondemand.com</code></li>
+    </ul>
+
+    <h2>호스트 권한(host_permissions) 사용 목적</h2>
+    <p>위 4개 도메인 계열에 대한 접근 권한은 다음 두 기능에만 사용됩니다.</p>
+    <ul>
+      <li>SAP Fiori 카탈로그 확장 게시 자동화 매크로를 실행하기 위한 콘텐츠 스크립트 주입 (<code>s4hana.cloud.sap</code>, <code>oncnd.sap</code>)</li>
+      <li>사용자가 등록한 테넌트로 탭 이동, 그리고 위에 설명한 쿠키 삭제 기능의 도메인 범위 제한</li>
+    </ul>
+    <p>이 외의 웹사이트에는 어떠한 방식으로도 접근하지 않습니다.</p>
+
+    <h2>문의</h2>
+    <p>
+      개인정보처리방침에 대한 문의나 삭제 요청은
+      <a href="https://github.com/dongqdev/sap-public-cloud-helper/issues" target="_blank">GitHub Issues</a>로
+      남겨주세요.
+    </p>
+  </div>
+</body>
+
+</html>
