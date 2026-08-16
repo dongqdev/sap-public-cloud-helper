@@ -33,10 +33,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   let activeTabObj = null;
 
   // 1. Navigation Tabs Switcher
-  navTabs.forEach(tab => {
+  navTabs.forEach((tab) => {
     tab.addEventListener('click', () => {
-      navTabs.forEach(t => t.classList.remove('active'));
-      tabContents.forEach(c => c.classList.remove('active'));
+      navTabs.forEach((t) => t.classList.remove('active'));
+      tabContents.forEach((c) => c.classList.remove('active'));
 
       tab.classList.add('active');
       const targetContent = document.getElementById(tab.dataset.tab);
@@ -67,10 +67,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     return new Promise((resolve) => {
       chrome.storage.sync.get(['sap_tenants'], (result) => {
         const list = result.sap_tenants || [];
-        const envOrder = { 'DEV': 1, 'CUST': 2, 'TEST': 3, 'PROD': 4 };
+        const envOrder = { DEV: 1, CUST: 2, TEST: 3, PROD: 4 };
         list.sort((a, b) => {
           // 1차: 별칭(회사명) 알파벳순 정렬
-          const compAlias = (a.alias || '').localeCompare(b.alias || '', undefined, { sensitivity: 'base', numeric: true });
+          const compAlias = (a.alias || '').localeCompare(b.alias || '', undefined, {
+            sensitivity: 'base',
+            numeric: true,
+          });
           if (compAlias !== 0) {
             return compAlias;
           }
@@ -134,13 +137,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Event Delegation for tenant list buttons
-    tenantListContainer.querySelectorAll('.btn-jump').forEach(btn => {
+    tenantListContainer.querySelectorAll('.btn-jump').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         chrome.tabs.create({ url: e.currentTarget.dataset.url });
       });
     });
 
-    tenantListContainer.querySelectorAll('.btn-api-copy').forEach(btn => {
+    tenantListContainer.querySelectorAll('.btn-api-copy').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         const apiUrl = e.currentTarget.dataset.url;
         navigator.clipboard.writeText(apiUrl).then(() => {
@@ -149,7 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     });
 
-    tenantListContainer.querySelectorAll('.btn-del').forEach(btn => {
+    tenantListContainer.querySelectorAll('.btn-del').forEach((btn) => {
       btn.addEventListener('click', async (e) => {
         const idx = parseInt(e.currentTarget.dataset.index, 10);
         const alias = e.currentTarget.dataset.alias || '';
@@ -183,7 +186,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const env = tenantEnvSelect.value;
 
     const list = await getTenants();
-    const existingIdx = list.findIndex(t => t.num === cleanNum);
+    const existingIdx = list.findIndex((t) => t.num === cleanNum);
     if (existingIdx >= 0) {
       list[existingIdx] = { num: cleanNum, alias, env };
     } else {
@@ -221,7 +224,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // 4. Automation UI Toggle
-  radioAutoModes.forEach(radio => {
+  radioAutoModes.forEach((radio) => {
     radio.addEventListener('change', () => {
       const mode = document.querySelector('input[name="autoMode"]:checked').value;
       const sectionCatalogExtOnly = document.getElementById('sectionCatalogExtOnly');
@@ -248,9 +251,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       ? document.getElementById('autoDeployAppName').value.trim()
       : '';
 
-    const catalogId = isCatalogExt
-      ? ''
-      : document.getElementById('autoCatalogId').value.trim();
+    const catalogId = isCatalogExt ? '' : document.getElementById('autoCatalogId').value.trim();
 
     const catalogRoles = isCatalogExt
       ? document.getElementById('autoCatalogRolesExt').value.trim()
@@ -268,7 +269,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       catalog_roles: catalogRoles,
       role_id: isCatalogExt ? '' : document.getElementById('autoRoleId').value.trim(),
       role_desc: isCatalogExt ? '' : document.getElementById('autoRoleDesc').value.trim(),
-      role_unrestricted: isCatalogExt ? false : document.getElementById('autoRoleWriteUnrestricted').checked
+      role_unrestricted: isCatalogExt
+        ? false
+        : document.getElementById('autoRoleWriteUnrestricted').checked,
     };
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -278,8 +281,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       const activeTab = tabs[0];
-      if (!activeTab.url || (!activeTab.url.includes('s4hana.cloud.sap') && !activeTab.url.includes('oncnd.sap'))) {
-        alert('현재 탭이 SAP S/4HANA Cloud 페이지가 아닙니다.\nFiori 화면으로 이동 후 다시 실행하세요.');
+      if (
+        !activeTab.url ||
+        (!activeTab.url.includes('s4hana.cloud.sap') && !activeTab.url.includes('oncnd.sap'))
+      ) {
+        alert(
+          '현재 탭이 SAP S/4HANA Cloud 페이지가 아닙니다.\nFiori 화면으로 이동 후 다시 실행하세요.',
+        );
         return;
       }
 
@@ -288,27 +296,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         chrome.tabs.sendMessage(tabId, config, (response) => {
           if (chrome.runtime.lastError || !response) {
             console.log('[SAP Helper] Injecting content script dynamically...');
-            chrome.scripting.insertCSS({
-              target: { tabId: tabId },
-              files: ['content/content.css']
-            }).catch(() => { });
+            chrome.scripting
+              .insertCSS({
+                target: { tabId: tabId },
+                files: ['content/content.css'],
+              })
+              .catch(() => {});
 
-            chrome.scripting.executeScript({
-              target: { tabId: tabId },
-              files: ['content/content.js']
-            }, () => {
-              // content.js가 로드되어 리스너가 등록될 때까지 잠시 대기 후 메시지 전송
-              setTimeout(() => {
-                chrome.tabs.sendMessage(tabId, config, (res) => {
-                  if (chrome.runtime.lastError) {
-                    console.error('[SAP Helper] Message retry error:', chrome.runtime.lastError);
-                  } else {
-                    showStatus(' Fiori 자동화가 시작되었습니다!');
-                    setTimeout(() => window.close(), 400);
-                  }
-                });
-              }, 200);
-            });
+            chrome.scripting.executeScript(
+              {
+                target: { tabId: tabId },
+                files: ['content/content.js'],
+              },
+              () => {
+                // content.js가 로드되어 리스너가 등록될 때까지 잠시 대기 후 메시지 전송
+                setTimeout(() => {
+                  chrome.tabs.sendMessage(tabId, config, (res) => {
+                    if (chrome.runtime.lastError) {
+                      console.error('[SAP Helper] Message retry error:', chrome.runtime.lastError);
+                    } else {
+                      showStatus(' Fiori 자동화가 시작되었습니다!');
+                      setTimeout(() => window.close(), 400);
+                    }
+                  });
+                }, 200);
+              },
+            );
           } else {
             showStatus(' Fiori 자동화가 시작되었습니다!');
             setTimeout(() => window.close(), 400);
@@ -339,7 +352,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Fill Tenant Select Box
     selectTargetTenant.innerHTML = `<option value="CURRENT">현재 활성화된 Fiori 탭 (주소 변경)</option>`;
-    tenants.forEach(t => {
+    tenants.forEach((t) => {
       const opt = document.createElement('option');
       opt.value = t.num;
       opt.textContent = `[${t.env || 'DEV'}] ${t.alias || 'COMPANY'} (my${t.num})`;
@@ -348,7 +361,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Render Shortcut Tiles Grid
     appShortcutList.innerHTML = '';
-    appList.forEach(app => {
+    appList.forEach((app) => {
       const item = document.createElement('div');
       item.className = 'shortcut-tile';
       item.innerHTML = `
@@ -361,13 +374,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         const targetHash = app.hash.startsWith('#') ? app.hash : '#' + app.hash;
 
         if (targetVal === 'CURRENT') {
-          if (activeTabObj && activeTabObj.url && (activeTabObj.url.includes('s4hana.cloud.sap') || activeTabObj.url.includes('oncnd.sap'))) {
+          if (
+            activeTabObj &&
+            activeTabObj.url &&
+            (activeTabObj.url.includes('s4hana.cloud.sap') ||
+              activeTabObj.url.includes('oncnd.sap'))
+          ) {
             const baseUrl = activeTabObj.url.split('/ui#')[0];
             const finalUrl = `${baseUrl}/ui${targetHash}`;
             chrome.tabs.update(activeTabObj.id, { url: finalUrl });
             window.close();
           } else {
-            alert('현재 탭이 S/4HANA Cloud 페이지가 아닙니다.\n아래 드롭다운에서 등록된 테넌트를 선택하여 이동하세요.');
+            alert(
+              '현재 탭이 S/4HANA Cloud 페이지가 아닙니다.\n아래 드롭다운에서 등록된 테넌트를 선택하여 이동하세요.',
+            );
           }
         } else {
           const finalUrl = `https://my${targetVal}.s4hana.cloud.sap/ui${targetHash}`;
@@ -406,28 +426,34 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const filterObj = {
       dataSource: {
-        type: "Category",
-        id: "All",
-        label: "모두",
-        labelPlural: "모두"
+        type: 'Category',
+        id: 'All',
+        label: '모두',
+        labelPlural: '모두',
       },
       searchTerm: query,
       rootCondition: {
-        type: "Complex",
-        operator: "And",
-        conditions: []
-      }
+        type: 'Complex',
+        operator: 'And',
+        conditions: [],
+      },
     };
     const targetHash = `#Action-search&/top=10&filter=${encodeURIComponent(JSON.stringify(filterObj))}`;
 
     if (targetVal === 'CURRENT') {
-      if (activeTabObj && activeTabObj.url && (activeTabObj.url.includes('s4hana.cloud.sap') || activeTabObj.url.includes('oncnd.sap'))) {
+      if (
+        activeTabObj &&
+        activeTabObj.url &&
+        (activeTabObj.url.includes('s4hana.cloud.sap') || activeTabObj.url.includes('oncnd.sap'))
+      ) {
         const baseUrl = activeTabObj.url.split('/ui#')[0];
         const finalUrl = `${baseUrl}/ui${targetHash}`;
         chrome.tabs.update(activeTabObj.id, { url: finalUrl });
         window.close();
       } else {
-        alert('현재 탭이 S/4HANA Cloud 페이지가 아닙니다.\n아래 드롭다운에서 등록된 테넌트를 선택하여 검색을 수행하세요.');
+        alert(
+          '현재 탭이 S/4HANA Cloud 페이지가 아닙니다.\n아래 드롭다운에서 등록된 테넌트를 선택하여 검색을 수행하세요.',
+        );
       }
     } else {
       const finalUrl = `https://my${targetVal}.s4hana.cloud.sap/ui${targetHash}`;
@@ -445,21 +471,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-
-
   if (btnDeleteCookies) {
     btnDeleteCookies.addEventListener('click', () => {
-      if (confirm('SAP 관련 쿠키를 삭제하시겠습니까?\n삭제 후 세션이 로그아웃되어 재로그인이 필요할 수 있습니다.')) {
+      if (
+        confirm(
+          'SAP 관련 쿠키를 삭제하시겠습니까?\n삭제 후 세션이 로그아웃되어 재로그인이 필요할 수 있습니다.',
+        )
+      ) {
         chrome.cookies.getAll({}, (cookies) => {
-          const targetCookies = cookies.filter(cookie => 
-            cookie.domain.endsWith('.s4hana.cloud.sap') || 
-            cookie.domain === 's4hana.cloud.sap' ||
-            cookie.domain.endsWith('.oncnd.sap') ||
-            cookie.domain === 'oncnd.sap' ||
-            cookie.domain.endsWith('.sap.com') ||
-            cookie.domain === 'sap.com' ||
-            cookie.domain.endsWith('.ondemand.com') ||
-            cookie.domain === 'ondemand.com'
+          const targetCookies = cookies.filter(
+            (cookie) =>
+              cookie.domain.endsWith('.s4hana.cloud.sap') ||
+              cookie.domain === 's4hana.cloud.sap' ||
+              cookie.domain.endsWith('.oncnd.sap') ||
+              cookie.domain === 'oncnd.sap' ||
+              cookie.domain.endsWith('.sap.com') ||
+              cookie.domain === 'sap.com' ||
+              cookie.domain.endsWith('.ondemand.com') ||
+              cookie.domain === 'ondemand.com',
           );
 
           if (targetCookies.length === 0) {
@@ -468,12 +497,12 @@ document.addEventListener('DOMContentLoaded', async () => {
           }
 
           let deletedCount = 0;
-          let removePromises = targetCookies.map(cookie => {
+          let removePromises = targetCookies.map((cookie) => {
             return new Promise((resolve) => {
               const protocol = cookie.secure ? 'https:' : 'http:';
               const domain = cookie.domain.startsWith('.') ? cookie.domain.slice(1) : cookie.domain;
               const url = `${protocol}//${domain}${cookie.path}`;
-              
+
               chrome.cookies.remove({ url: url, name: cookie.name }, (details) => {
                 if (details) deletedCount++;
                 resolve();
@@ -482,7 +511,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           });
 
           Promise.all(removePromises).then(() => {
-            showStatus(`SAP 관련 쿠키 ${deletedCount}개가 삭제되었습니다. 페이지를 새로고침 해주세요.`);
+            showStatus(
+              `SAP 관련 쿠키 ${deletedCount}개가 삭제되었습니다. 페이지를 새로고침 해주세요.`,
+            );
           });
         });
       }
@@ -511,7 +542,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function escapeHtml(str) {
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 
   // Initial Render

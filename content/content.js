@@ -91,7 +91,9 @@
   function startAutomation(config) {
     createProgressOverlay();
     log('Fiori UI5 자동화 매크로가 시작되었습니다!');
-    log(`선택 모드: ${config.mode === 'CATALOG_EXT' ? '사용자 정의 카탈로그 확장' : '비즈니스 역할 유지보수'}`);
+    log(
+      `선택 모드: ${config.mode === 'CATALOG_EXT' ? '사용자 정의 카탈로그 확장' : '비즈니스 역할 유지보수'}`,
+    );
 
     injectMainWorldAutomation(config);
   }

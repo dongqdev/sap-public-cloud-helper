@@ -41,8 +41,8 @@ This project is not affiliated with or endorsed by SAP SE.
 
 ## Screenshots
 
-| Tenant registration and navigation | Fiori UI5 automation macro | Fiori app shortcut tiles |
-|:---:|:---:|:---:|
+|             Tenant registration and navigation              |          Fiori UI5 automation macro           |        Fiori app shortcut tiles         |
+| :---------------------------------------------------------: | :-------------------------------------------: | :-------------------------------------: |
 | ![Tenant registration and navigation](images/image%201.png) | ![Fiori UI5 automation](images/image%202.png) | ![Shortcut tiles](images/image%203.png) |
 
 **Account info at a glance** (sample screen, real account details are redacted)

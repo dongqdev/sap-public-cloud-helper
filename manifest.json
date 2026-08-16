@@ -37,10 +37,7 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://*.s4hana.cloud.sap/*",
-        "https://*.oncnd.sap/*"
-      ],
+      "matches": ["https://*.s4hana.cloud.sap/*", "https://*.oncnd.sap/*"],
       "css": ["content/content.css"],
       "js": ["content/content.js"],
       "run_at": "document_end"
@@ -48,13 +45,8 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": [
-        "content/mainWorld.js"
-      ],
-      "matches": [
-        "https://*.s4hana.cloud.sap/*",
-        "https://*.oncnd.sap/*"
-      ]
+      "resources": ["content/mainWorld.js"],
+      "matches": ["https://*.s4hana.cloud.sap/*", "https://*.oncnd.sap/*"]
     }
   ],
   "options_page": "options/options.html"

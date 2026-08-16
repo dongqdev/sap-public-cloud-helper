@@ -25,10 +25,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     return new Promise((resolve) => {
       chrome.storage.sync.get(['sap_tenants'], (res) => {
         const list = res.sap_tenants || [];
-        const envOrder = { 'DEV': 1, 'CUST': 2, 'TEST': 3, 'PROD': 4 };
+        const envOrder = { DEV: 1, CUST: 2, TEST: 3, PROD: 4 };
         list.sort((a, b) => {
           // 1차: 별칭(회사명) 알파벳순 정렬
-          const compAlias = (a.alias || '').localeCompare(b.alias || '', undefined, { sensitivity: 'base', numeric: true });
+          const compAlias = (a.alias || '').localeCompare(b.alias || '', undefined, {
+            sensitivity: 'base',
+            numeric: true,
+          });
           if (compAlias !== 0) {
             return compAlias;
           }
@@ -81,7 +84,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       tenantTableBody.appendChild(tr);
     });
 
-    tenantTableBody.querySelectorAll('.btn-del').forEach(btn => {
+    tenantTableBody.querySelectorAll('.btn-del').forEach((btn) => {
       btn.addEventListener('click', async (e) => {
         const idx = parseInt(e.target.dataset.index, 10);
         const tenants = await getTenants();
@@ -135,7 +138,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       appShortcutTableBody.appendChild(tr);
     });
 
-    appShortcutTableBody.querySelectorAll('.btn-del-app').forEach(btn => {
+    appShortcutTableBody.querySelectorAll('.btn-del-app').forEach((btn) => {
       btn.addEventListener('click', async (e) => {
         const idx = parseInt(e.target.dataset.index, 10);
         const list = await getAppShortcuts();
@@ -188,10 +191,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const tenants = await getTenants();
     const shortcuts = await getAppShortcuts();
     const data = { sap_tenants: tenants, sap_app_shortcuts: shortcuts };
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+    const dataStr =
+      'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(data, null, 2));
     const dlAnchorElem = document.createElement('a');
-    dlAnchorElem.setAttribute("href", dataStr);
-    dlAnchorElem.setAttribute("download", `sap_cloud_helper_backup_${new Date().toISOString().slice(0, 10)}.json`);
+    dlAnchorElem.setAttribute('href', dataStr);
+    dlAnchorElem.setAttribute(
+      'download',
+      `sap_cloud_helper_backup_${new Date().toISOString().slice(0, 10)}.json`,
+    );
     dlAnchorElem.click();
   });
 
@@ -218,7 +225,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const currentTenants = await getTenants();
         const mergedTenants = [...currentTenants];
 
-        importedTenants.forEach(item => {
+        importedTenants.forEach((item) => {
           if (!item.num) return;
           const cleanNum = item.num.toString().replace(/[^0-9]/g, '');
           if (cleanNum.length !== 6) return;
@@ -227,20 +234,20 @@ document.addEventListener('DOMContentLoaded', async () => {
           let env = item.env || 'DEV';
           if (env === 'PRD') env = 'PROD';
 
-          const idx = mergedTenants.findIndex(t => t.num === cleanNum);
+          const idx = mergedTenants.findIndex((t) => t.num === cleanNum);
           if (idx >= 0) {
             // 중복 시 기존 정보 업데이트
             mergedTenants[idx] = {
               num: cleanNum,
               alias: item.alias || mergedTenants[idx].alias || 'COMPANY',
-              env: env
+              env: env,
             };
           } else {
             // 신규 추가
             mergedTenants.push({
               num: cleanNum,
               alias: item.alias || 'COMPANY',
-              env: env
+              env: env,
             });
           }
         });
@@ -251,25 +258,25 @@ document.addEventListener('DOMContentLoaded', async () => {
           const currentShortcuts = await getAppShortcuts();
           const mergedShortcuts = [...currentShortcuts];
 
-          importedShortcuts.forEach(item => {
+          importedShortcuts.forEach((item) => {
             if (!item.hash) return;
             let hash = item.hash.trim();
             if (!hash.startsWith('#')) {
               hash = '#' + hash;
             }
 
-            const idx = mergedShortcuts.findIndex(s => s.hash === hash);
+            const idx = mergedShortcuts.findIndex((s) => s.hash === hash);
             if (idx >= 0) {
               // 중복 시 명칭 업데이트
               mergedShortcuts[idx] = {
                 name: item.name || mergedShortcuts[idx].name || '미지정 앱',
-                hash: hash
+                hash: hash,
               };
             } else {
               // 신규 추가
               mergedShortcuts.push({
                 name: item.name || '미지정 앱',
-                hash: hash
+                hash: hash,
               });
             }
           });
@@ -278,7 +285,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         await renderTenantTable();
         await renderAppShortcutTable();
-        alert('데이터 병합이 완료되었습니다. (동일 테넌트 번호 및 라우팅 해시는 기존 정보로 스마트 병합되었습니다.)');
+        alert(
+          '데이터 병합이 완료되었습니다. (동일 테넌트 번호 및 라우팅 해시는 기존 정보로 스마트 병합되었습니다.)',
+        );
       } catch (err) {
         console.error(err);
         alert('JSON 파싱 오류: 올바른 백업 파일인지 확인해 주세요.');
@@ -295,7 +304,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   function escapeHtml(str) {
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 
   renderTenantTable();

@@ -3,7 +3,7 @@ name: Auto Release (ZIP Only)
 on:
   push:
     branches:
-      - release   # release 브랜치에 push(또는 머지)될 때 작동
+      - release # release 브랜치에 push(또는 머지)될 때 작동
 
 jobs:
   build-and-release:
@@ -43,7 +43,7 @@ jobs:
           name: Release v${{ steps.get_version.outputs.VERSION }}
           body: |
             ## SAP Public Cloud Helper v${{ steps.get_version.outputs.VERSION }} 자동 릴리스
-            
+
             - 본 릴리스는 `release` 브랜치 머지를 통해 자동 생성되었습니다.
             - 크롬 수동 설치를 위한 `.zip` 배포 파일이 아래 에셋으로 제공됩니다.
           draft: false

@@ -92,6 +92,16 @@
   border-radius: 3px;
 }
 
-.log-info { color: #334155; }
-.log-success { color: #166534; background: #dcfce7; font-weight: 700; }
-.log-error { color: #991b1b; background: #fee2e2; font-weight: 700; }
+.log-info {
+  color: #334155;
+}
+.log-success {
+  color: #166534;
+  background: #dcfce7;
+  font-weight: 700;
+}
+.log-error {
+  color: #991b1b;
+  background: #fee2e2;
+  font-weight: 700;
+}
