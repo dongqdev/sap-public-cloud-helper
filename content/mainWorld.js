@@ -963,29 +963,127 @@
       return userInfo;
     }
 
-    // 화면 최상단 자주색 배너 띠를 동적으로 삽입해 주는 헬퍼 함수
+    // ⓘ 정보 트리거 아이콘을 생성해 컨테이너에 부착하는 헬퍼 함수 (bdi 치환/폴백 치환/수동 배너 세 경로가 공유)
+    function ensureInfoTrigger(container) {
+      if (!container) return;
+      if (document.getElementById('sap-helper-info-trigger')) return;
+
+      const infoTrigger = document.createElement('span');
+      infoTrigger.id = 'sap-helper-info-trigger';
+      infoTrigger.innerText = ' ⓘ';
+      infoTrigger.style.cssText = `
+        cursor: pointer;
+        margin-left: 4px;
+        color: #ffffff;
+        font-weight: bold;
+        display: inline-block;
+        transition: transform 0.2s ease;
+      `;
+
+      infoTrigger.style.transform = 'scale(1)';
+      infoTrigger.addEventListener('mouseenter', () => {
+        infoTrigger.style.transform = 'scale(1.2)';
+      });
+      infoTrigger.addEventListener('mouseleave', () => {
+        infoTrigger.style.transform = 'scale(1)';
+      });
+
+      infoTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+
+        // 내부 클릭 헬퍼 함수 정의
+        function clickTarget(aboutDom) {
+          if (!aboutDom) return;
+          const innerTarget = aboutDom.shadowRoot
+            ? aboutDom.shadowRoot.querySelector('li')
+            : null;
+          if (innerTarget) {
+            innerTarget.click();
+          } else {
+            setTimeout(() => {
+              const retryTarget = aboutDom.shadowRoot
+                ? aboutDom.shadowRoot.querySelector('li')
+                : aboutDom;
+              retryTarget?.click();
+            }, 50);
+          }
+        }
+
+        // 프로필 및 정보 버튼 자동 클릭 트리거
+        const profileDom =
+          document.querySelector('#meAreaHeaderButton') ||
+          document.querySelector('#userActionsMenuHeaderButton') ||
+          document.querySelector('[id*="userActionsMenuHeaderButton"]');
+
+        if (!profileDom) {
+          console.log('[SAP Helper] 프로필 버튼 DOM을 찾을 수 없습니다.');
+          return;
+        }
+
+        const existingAbout = document.querySelector('[text="정보"]');
+        if (existingAbout) {
+          clickTarget(existingAbout);
+          return;
+        }
+
+        const observer = new MutationObserver((mutations, obs) => {
+          const aboutDom = document.querySelector('[text="정보"]');
+          if (aboutDom) {
+            obs.disconnect();
+            requestAnimationFrame(() => {
+              clickTarget(aboutDom);
+            });
+          }
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+        profileDom.click();
+        setTimeout(() => observer.disconnect(), 2000);
+      });
+
+      container.appendChild(infoTrigger);
+    }
+
+    // ShellBarView 내부의 ShellBar 바로 위에 검정 배경 배너를 삽입하는 헬퍼 함수
     function injectTopBannerBar(fullText) {
+      const shellBarView = document.getElementById('__component0---ShellBarView');
+      if (!shellBarView) return;
+
       let banner = document.getElementById('sap-helper-top-banner');
       if (!banner) {
         banner = document.createElement('div');
         banner.id = 'sap-helper-top-banner';
         banner.style.cssText = `
-          background-color: #6b0c36; /* Fiori 자주색 테마 */
+          background-color: #000000;
           color: #ffffff;
           text-align: center;
-          font-size: 11px;
+          font-size: 13px;
           font-weight: bold;
           padding: 3px 0;
           width: 100%;
-          position: relative;
-          z-index: 99999;
-          border-bottom: 1px solid #4a0523;
+          box-sizing: border-box;
+          top: 0;
+          left: 0;
+          z-index: 2147483647;
+          border-bottom: 1px solid #333333;
         `;
-        document.body.insertBefore(banner, document.body.firstChild);
       }
-      if (banner.innerText !== fullText) {
-        banner.innerText = fullText;
+
+      if (shellBarView.firstChild !== banner) {
+        shellBarView.insertBefore(banner, shellBarView.firstChild);
       }
+
+      let textSpan = banner.querySelector('#sap-helper-top-banner-text');
+      if (!textSpan) {
+        textSpan = document.createElement('span');
+        textSpan.id = 'sap-helper-top-banner-text';
+        banner.appendChild(textSpan);
+      }
+      if (textSpan.innerText !== fullText) {
+        textSpan.innerText = fullText;
+      }
+
+      ensureInfoTrigger(banner);
     }
 
     // BFS를 통해 특정 키워드를 품은 상단 60px 이내의 말단 요소를 탐색하는 헬퍼 함수
@@ -1083,7 +1181,7 @@
 
       // [방안 A] Fiori 상단 시스템 배너 영역 덮어쓰기
       if (infoBar) {
-        // 기존에 임시로 삽입된 배너 띠가 있다면 제거하여 겹침 방지
+        // 기존에 임시로 삽입된 배너 띠가 있다면 제거
         const manualBanner = document.getElementById('sap-helper-top-banner');
         if (manualBanner) {
           manualBanner.remove();
@@ -1113,88 +1211,20 @@
           }
 
           // 정보창 ⓘ 아이콘 추가 및 이벤트 바인딩
-          let infoTrigger = subTextBdi.parentNode.querySelector('#sap-helper-info-trigger');
-          if (!infoTrigger) {
-            infoTrigger = document.createElement('span');
-            infoTrigger.id = 'sap-helper-info-trigger';
-            infoTrigger.innerText = ' ⓘ';
-            infoTrigger.style.cssText = `
-              cursor: pointer;
-              margin-left: 4px;
-              color: #ffffff;
-              font-weight: bold;
-              display: inline-block;
-              transition: transform 0.2s ease;
-            `;
-
-            infoTrigger.style.transform = 'scale(1)';
-            infoTrigger.addEventListener('mouseenter', () => {
-              infoTrigger.style.transform = 'scale(1.2)';
-            });
-            infoTrigger.addEventListener('mouseleave', () => {
-              infoTrigger.style.transform = 'scale(1)';
-            });
-
-            infoTrigger.addEventListener('click', (e) => {
-              e.stopPropagation();
-
-              // 내부 클릭 헬퍼 함수 정의
-              function clickTarget(aboutDom) {
-                if (!aboutDom) return;
-                const innerTarget = aboutDom.shadowRoot
-                  ? aboutDom.shadowRoot.querySelector('li')
-                  : null;
-                if (innerTarget) {
-                  innerTarget.click();
-                } else {
-                  setTimeout(() => {
-                    const retryTarget = aboutDom.shadowRoot
-                      ? aboutDom.shadowRoot.querySelector('li')
-                      : aboutDom;
-                    retryTarget?.click();
-                  }, 50);
-                }
-              }
-
-              // 프로필 및 정보 버튼 자동 클릭 트리거
-              const profileDom =
-                document.querySelector('#meAreaHeaderButton') ||
-                document.querySelector('#userActionsMenuHeaderButton') ||
-                document.querySelector('[id*="userActionsMenuHeaderButton"]');
-
-              if (!profileDom) {
-                console.log('[SAP Helper] 프로필 버튼 DOM을 찾을 수 없습니다.');
-                return;
-              }
-
-              const existingAbout = document.querySelector('[text="정보"]');
-              if (existingAbout) {
-                clickTarget(existingAbout);
-                return;
-              }
-
-              const observer = new MutationObserver((mutations, obs) => {
-                const aboutDom = document.querySelector('[text="정보"]');
-                if (aboutDom) {
-                  obs.disconnect();
-                  requestAnimationFrame(() => {
-                    clickTarget(aboutDom);
-                  });
-                }
-              });
-
-              observer.observe(document.body, { childList: true, subtree: true });
-              profileDom.click();
-              setTimeout(() => observer.disconnect(), 2000);
-            });
-
-            subTextBdi.parentNode.appendChild(infoTrigger);
-          }
+          ensureInfoTrigger(subTextBdi.parentNode);
         } else {
-          // bdi 구조를 찾지 못한 경우에만 차선책으로 innerText 통째 치환
-          if (infoBar.innerText !== fullText) {
-            infoBar.innerText = fullText;
+          // bdi 구조를 찾지 못한 경우, 별도 텍스트 span으로 치환하여 매 틱마다 트리거를 지우지 않도록 함
+          let fallbackText = infoBar.querySelector('#sap-helper-fallback-text');
+          if (!fallbackText) {
+            infoBar.innerHTML = '';
+            fallbackText = document.createElement('span');
+            fallbackText.id = 'sap-helper-fallback-text';
+            infoBar.appendChild(fallbackText);
           }
+          if (fallbackText.innerText !== fullText) {
+            fallbackText.innerText = fullText;
+          }
+          ensureInfoTrigger(infoBar);
         }
       } else {
         // 배너를 찾지 못했으므로 최상단에 강제로 배너 띠를 주입하여 항상 노출시킴
