@@ -384,7 +384,7 @@
         color: var(--text-muted);
       }
 
-      /* Install Steps */
+      /* Install CTA */
       .install {
         background: var(--bg-elevated);
         border-top: 1px solid var(--border);
@@ -392,51 +392,15 @@
         padding: 88px 0;
       }
 
-      .steps-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 32px;
+      .install-cta {
+        display: flex;
+        justify-content: center;
         margin-top: 44px;
       }
 
-      .step-item {
-        display: flex;
-        gap: 16px;
-      }
-
-      .step-number {
-        width: 34px;
-        height: 34px;
-        border-radius: var(--radius-sm);
-        border: 1px solid var(--border-hover);
-        color: var(--accent);
-        font-family: var(--font-mono);
-        font-weight: 600;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-      }
-
-      .step-content h4 {
-        font-size: 16px;
-        font-weight: 700;
-        margin-bottom: 6px;
-      }
-
-      .step-content p {
-        color: var(--text-muted);
-        font-size: 13.5px;
-      }
-
-      .step-content code {
-        font-family: var(--font-mono);
-        font-size: 12.5px;
-        background: var(--bg);
-        border: 1px solid var(--border);
-        border-radius: 4px;
-        padding: 1px 5px;
+      .install-cta .btn {
+        padding: 12px 24px;
+        font-size: 15px;
         color: var(--text-main);
       }
 
@@ -706,42 +670,28 @@
       </div>
     </section>
 
-    <!-- Install Steps Section -->
+    <!-- Install Section -->
     <section class="install" id="install">
       <div class="container">
         <div class="section-header">
-          <h2 class="section-title">설치 및 사용 방법</h2>
-          <p class="section-subtitle">Chrome 개발자 모드로 1분 안에 로드할 수 있습니다.</p>
+          <h2 class="section-title">설치 방법</h2>
+          <p class="section-subtitle">Chrome 웹스토어에서 클릭 한 번으로 설치할 수 있습니다.</p>
         </div>
 
-        <div class="steps-list">
-          <div class="step-item">
-            <div class="step-number">1</div>
-            <div class="step-content">
-              <h4>프로젝트 다운로드</h4>
-              <p>GitHub 저장소를 clone 하거나 Zip 파일을 내려받아 압축을 풉니다.</p>
-            </div>
-          </div>
-          <div class="step-item">
-            <div class="step-number">2</div>
-            <div class="step-content">
-              <h4>개발자 모드 켜기</h4>
-              <p>
-                주소창에 <code>chrome://extensions</code>를 입력하고 우측 상단의 '개발자 모드'를
-                켭니다.
-              </p>
-            </div>
-          </div>
-          <div class="step-item">
-            <div class="step-number">3</div>
-            <div class="step-content">
-              <h4>압축해제된 확장 프로그램 로드</h4>
-              <p>
-                '압축해제된 확장 프로그램을 로드합니다'를 클릭하고 압축을 푼 폴더를 선택하면
-                끝입니다.
-              </p>
-            </div>
-          </div>
+        <div class="install-cta">
+          <a
+            href="https://chromewebstore.google.com/detail/sap-public-cloud-helper/ibamkelimcpdpdmkmhdbiplnfijgjhph"
+            target="_blank"
+            rel="noopener"
+            class="btn btn-primary"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path
+                d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 3a7 7 0 0 1 6.06 3.5H12a3.5 3.5 0 0 0-3.03 1.75L5.94 6.34A6.98 6.98 0 0 1 12 5ZM5 12a6.98 6.98 0 0 1 .94-3.5l3.03 5.25a3.5 3.5 0 0 0 3.03 1.75l-3.03 5.25A7 7 0 0 1 5 12Zm7 7a6.98 6.98 0 0 1-1.94-.27l3.03-5.25a3.48 3.48 0 0 0 1.5-2.98 3.48 3.48 0 0 0-.47-1.75h6.06A7 7 0 0 1 12 19Z"
+              />
+            </svg>
+            Chrome 웹스토어에서 설치하기
+          </a>
         </div>
       </div>
     </section>
